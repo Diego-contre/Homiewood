@@ -1,6 +1,9 @@
 package com.homiwood.peliculas.service;
 
 import com.homiwood.peliculas.dto.AgregarMiembroGrupoRequest;
+import com.homiwood.peliculas.exception.BadRequestException;
+import com.homiwood.peliculas.exception.DuplicateResourceException;
+import com.homiwood.peliculas.exception.NotFoundException;
 import com.homiwood.peliculas.model.Grupo;
 import com.homiwood.peliculas.model.GrupoMiembro;
 import com.homiwood.peliculas.model.Usuario;
@@ -39,14 +42,14 @@ public class GrupoMiembroService {
     public GrupoMiembro agregarMiembro(Long idGrupo, AgregarMiembroGrupoRequest request) {
 
         if (request.getIdUsuario() == null) {
-            throw new RuntimeException("El idUsuario es obligatorio");
+            throw new BadRequestException("El idUsuario es obligatorio");
         }
 
         Grupo grupo = grupoRepository.findById(idGrupo)
-                .orElseThrow(() -> new RuntimeException("Grupo no encontrado"));
+                .orElseThrow(() -> new NotFoundException("Grupo no encontrado"));
 
         Usuario usuario = usuarioRepository.findById(request.getIdUsuario())
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(() -> new NotFoundException("Usuario no encontrado"));
 
         boolean yaExiste = grupoMiembroRepository.existsByGrupoIdGrupoAndUsuarioIdUsuario(
                 idGrupo,
@@ -54,7 +57,7 @@ public class GrupoMiembroService {
         );
 
         if (yaExiste) {
-            throw new RuntimeException("El usuario ya pertenece a este grupo");
+            throw new DuplicateResourceException("El usuario ya pertenece a este grupo");
         }
 
         GrupoMiembro miembro = new GrupoMiembro();
@@ -69,7 +72,7 @@ public class GrupoMiembroService {
 
         GrupoMiembro miembro = grupoMiembroRepository
                 .findByGrupoIdGrupoAndUsuarioIdUsuario(idGrupo, idUsuario)
-                .orElseThrow(() -> new RuntimeException("Miembro no encontrado en el grupo"));
+                .orElseThrow(() -> new NotFoundException("Miembro no encontrado en el grupo"));
 
         grupoMiembroRepository.delete(miembro);
     }
@@ -82,7 +85,7 @@ public class GrupoMiembroService {
         String rolNormalizado = rol.toUpperCase();
 
         if (!rolNormalizado.equals("ADMIN") && !rolNormalizado.equals("MIEMBRO")) {
-            throw new RuntimeException("Rol inválido. Usa ADMIN o MIEMBRO");
+            throw new BadRequestException("Rol inválido. Usa ADMIN o MIEMBRO");
         }
 
         return rolNormalizado;

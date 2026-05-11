@@ -3,6 +3,7 @@ package com.homiwood.peliculas.service;
 import com.homiwood.peliculas.dto.CatalogoExternoResponse;
 import com.homiwood.peliculas.dto.TmdbItemDto;
 import com.homiwood.peliculas.dto.TmdbSearchResponse;
+import com.homiwood.peliculas.exception.BadRequestException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -31,6 +32,11 @@ public class TmdbCatalogoService {
     }
 
     public List<CatalogoExternoResponse> buscarPeliculasYSeries(String query) {
+
+        if (query == null || query.isBlank()) {
+            throw new BadRequestException("El parámetro query es obligatorio");
+        }
+
         try {
             TmdbSearchResponse response = restClient.get()
                     .uri(uriBuilder -> uriBuilder

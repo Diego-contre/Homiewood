@@ -1,6 +1,9 @@
 package com.homiwood.peliculas.service;
 
 import com.homiwood.peliculas.dto.AgregarContenidoListaRequest;
+import com.homiwood.peliculas.exception.BadRequestException;
+import com.homiwood.peliculas.exception.DuplicateResourceException;
+import com.homiwood.peliculas.exception.NotFoundException;
 import com.homiwood.peliculas.model.Contenido;
 import com.homiwood.peliculas.model.Lista;
 import com.homiwood.peliculas.model.ListaContenido;
@@ -34,11 +37,15 @@ public class ListaContenidoService {
 
     public ListaContenido agregarContenidoALista(Long idLista, AgregarContenidoListaRequest request) {
 
+        if (request.getIdContenido() == null) {
+            throw new BadRequestException("El idContenido es obligatorio");
+        }
+
         Lista lista = listaRepository.findById(idLista)
-                .orElseThrow(() -> new RuntimeException("Lista no encontrada"));
+                .orElseThrow(() -> new NotFoundException("Lista no encontrada"));
 
         Contenido contenido = contenidoRepository.findById(request.getIdContenido())
-                .orElseThrow(() -> new RuntimeException("Contenido no encontrado"));
+                .orElseThrow(() -> new NotFoundException("Contenido no encontrado"));
 
         boolean yaExiste = listaContenidoRepository.existsByListaIdListaAndContenidoIdContenido(
                 idLista,
@@ -46,7 +53,7 @@ public class ListaContenidoService {
         );
 
         if (yaExiste) {
-            throw new RuntimeException("Este contenido ya existe en la lista");
+            throw new DuplicateResourceException("Este contenido ya existe en la lista");
         }
 
         validarEstado(request.getEstado());
@@ -68,6 +75,11 @@ public class ListaContenidoService {
     }
 
     public void eliminarContenidoDeLista(Long idListaContenido) {
+
+        if (!listaContenidoRepository.existsById(idListaContenido)) {
+            throw new NotFoundException("Contenido de lista no encontrado");
+        }
+
         listaContenidoRepository.deleteById(idListaContenido);
     }
 
@@ -78,14 +90,12 @@ public class ListaContenidoService {
 
         String estadoNormalizado = estado.toUpperCase();
 
-        if (
-                !estadoNormalizado.equals("POR_VER") &&
-                        !estadoNormalizado.equals("VIENDO") &&
-                        !estadoNormalizado.equals("VISTO") &&
-                        !estadoNormalizado.equals("ABANDONADO") &&
-                        !estadoNormalizado.equals("FAVORITO")
-        ) {
-            throw new RuntimeException("Estado inválido. Usa POR_VER, VIENDO, VISTO, ABANDONADO o FAVORITO");
+        if (!estadoNormalizado.equals("POR_VER") &&
+                !estadoNormalizado.equals("VIENDO") &&
+                !estadoNormalizado.equals("VISTO") &&
+                !estadoNormalizado.equals("ABANDONADO") &&
+                !estadoNormalizado.equals("FAVORITO")) {
+            throw new BadRequestException("Estado inválido. Usa POR_VER, VIENDO, VISTO, ABANDONADO o FAVORITO");
         }
     }
 }

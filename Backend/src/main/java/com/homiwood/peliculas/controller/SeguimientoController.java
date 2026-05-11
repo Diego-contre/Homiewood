@@ -3,6 +3,7 @@ package com.homiwood.peliculas.controller;
 import com.homiwood.peliculas.dto.CrearSeguimientoRequest;
 import com.homiwood.peliculas.model.Seguimiento;
 import com.homiwood.peliculas.service.SeguimientoService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,7 +22,7 @@ public class SeguimientoController {
     @PostMapping("/{idSeguido}/seguidores")
     public ResponseEntity<Seguimiento> seguirUsuario(
             @PathVariable Long idSeguido,
-            @RequestBody CrearSeguimientoRequest request
+            @Valid @RequestBody CrearSeguimientoRequest request
     ) {
         Seguimiento seguimiento = seguimientoService.seguirUsuario(idSeguido, request);
         return ResponseEntity.ok(seguimiento);

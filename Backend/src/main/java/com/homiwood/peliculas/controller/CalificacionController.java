@@ -3,6 +3,7 @@ package com.homiwood.peliculas.controller;
 import com.homiwood.peliculas.dto.CrearCalificacionRequest;
 import com.homiwood.peliculas.model.Calificacion;
 import com.homiwood.peliculas.service.CalificacionService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,7 +40,7 @@ public class CalificacionController {
     }
 
     @PostMapping
-    public ResponseEntity<Calificacion> crearCalificacion(@RequestBody CrearCalificacionRequest request) {
+    public ResponseEntity<Calificacion> crearCalificacion(@Valid @RequestBody CrearCalificacionRequest request) {
         Calificacion calificacionCreada = calificacionService.crearCalificacion(request);
         return ResponseEntity.ok(calificacionCreada);
     }
@@ -47,7 +48,7 @@ public class CalificacionController {
     @PutMapping("/{idCalificacion}")
     public ResponseEntity<Calificacion> actualizarCalificacion(
             @PathVariable Long idCalificacion,
-            @RequestBody CrearCalificacionRequest request
+            @Valid @RequestBody CrearCalificacionRequest request
     ) {
         Calificacion calificacionActualizada = calificacionService.actualizarCalificacion(idCalificacion, request);
         return ResponseEntity.ok(calificacionActualizada);

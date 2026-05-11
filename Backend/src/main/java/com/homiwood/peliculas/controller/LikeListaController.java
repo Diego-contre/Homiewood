@@ -3,6 +3,7 @@ package com.homiwood.peliculas.controller;
 import com.homiwood.peliculas.dto.CrearLikeListaRequest;
 import com.homiwood.peliculas.model.LikeLista;
 import com.homiwood.peliculas.service.LikeListaService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,7 +22,7 @@ public class LikeListaController {
     @PostMapping("/listas/{idLista}/likes")
     public ResponseEntity<LikeLista> darLike(
             @PathVariable Long idLista,
-            @RequestBody CrearLikeListaRequest request
+            @Valid @RequestBody CrearLikeListaRequest request
     ) {
         LikeLista likeCreado = likeListaService.darLike(idLista, request);
         return ResponseEntity.ok(likeCreado);

@@ -3,6 +3,7 @@ package com.homiwood.peliculas.controller;
 import com.homiwood.peliculas.dto.AgregarMiembroGrupoRequest;
 import com.homiwood.peliculas.model.GrupoMiembro;
 import com.homiwood.peliculas.service.GrupoMiembroService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,7 +32,7 @@ public class GrupoMiembroController {
     @PostMapping("/{idGrupo}/miembros")
     public ResponseEntity<GrupoMiembro> agregarMiembro(
             @PathVariable Long idGrupo,
-            @RequestBody AgregarMiembroGrupoRequest request
+            @Valid @RequestBody AgregarMiembroGrupoRequest request
     ) {
         GrupoMiembro miembro = grupoMiembroService.agregarMiembro(idGrupo, request);
         return ResponseEntity.ok(miembro);

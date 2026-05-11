@@ -1,6 +1,9 @@
 package com.homiwood.peliculas.service;
 
 import com.homiwood.peliculas.dto.AgregarGeneroContenidoRequest;
+import com.homiwood.peliculas.exception.BadRequestException;
+import com.homiwood.peliculas.exception.DuplicateResourceException;
+import com.homiwood.peliculas.exception.NotFoundException;
 import com.homiwood.peliculas.model.Contenido;
 import com.homiwood.peliculas.model.ContenidoGenero;
 import com.homiwood.peliculas.model.Genero;
@@ -38,11 +41,15 @@ public class ContenidoGeneroService {
 
     public ContenidoGenero agregarGeneroAContenido(Long idContenido, AgregarGeneroContenidoRequest request) {
 
+        if (request.getIdGenero() == null) {
+            throw new BadRequestException("El idGenero es obligatorio");
+        }
+
         Contenido contenido = contenidoRepository.findById(idContenido)
-                .orElseThrow(() -> new RuntimeException("Contenido no encontrado"));
+                .orElseThrow(() -> new NotFoundException("Contenido no encontrado"));
 
         Genero genero = generoRepository.findById(request.getIdGenero())
-                .orElseThrow(() -> new RuntimeException("Género no encontrado"));
+                .orElseThrow(() -> new NotFoundException("Género no encontrado"));
 
         boolean yaExiste = contenidoGeneroRepository.existsByContenidoIdContenidoAndGeneroIdGenero(
                 idContenido,
@@ -50,7 +57,7 @@ public class ContenidoGeneroService {
         );
 
         if (yaExiste) {
-            throw new RuntimeException("Este género ya está asignado a este contenido");
+            throw new DuplicateResourceException("Este género ya está asignado a este contenido");
         }
 
         ContenidoGenero contenidoGenero = new ContenidoGenero();
@@ -61,6 +68,11 @@ public class ContenidoGeneroService {
     }
 
     public void eliminarRelacion(Long idContenidoGenero) {
+
+        if (!contenidoGeneroRepository.existsById(idContenidoGenero)) {
+            throw new NotFoundException("Relación contenido-género no encontrada");
+        }
+
         contenidoGeneroRepository.deleteById(idContenidoGenero);
     }
 }

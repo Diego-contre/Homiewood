@@ -4,6 +4,7 @@ import com.homiwood.peliculas.dto.CrearGrupoRequest;
 import com.homiwood.peliculas.model.Grupo;
 import com.homiwood.peliculas.model.GrupoMiembro;
 import com.homiwood.peliculas.service.GrupoService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,7 +36,7 @@ public class GrupoController {
     }
 
     @PostMapping
-    public ResponseEntity<Grupo> crearGrupo(@RequestBody CrearGrupoRequest request) {
+    public ResponseEntity<Grupo> crearGrupo(@Valid @RequestBody CrearGrupoRequest request) {
         Grupo grupoCreado = grupoService.crearGrupo(request);
         return ResponseEntity.ok(grupoCreado);
     }

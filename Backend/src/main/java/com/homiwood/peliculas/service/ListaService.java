@@ -1,6 +1,8 @@
 package com.homiwood.peliculas.service;
 
 import com.homiwood.peliculas.dto.CrearListaRequest;
+import com.homiwood.peliculas.exception.BadRequestException;
+import com.homiwood.peliculas.exception.NotFoundException;
 import com.homiwood.peliculas.model.Lista;
 import com.homiwood.peliculas.model.Usuario;
 import com.homiwood.peliculas.repository.ListaRepository;
@@ -30,13 +32,21 @@ public class ListaService {
 
     public Lista buscarPorId(Long id) {
         return listaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Lista no encontrada"));
+                .orElseThrow(() -> new NotFoundException("Lista no encontrada"));
     }
 
     public Lista crearLista(CrearListaRequest request) {
 
+        if (request.getIdUsuario() == null) {
+            throw new BadRequestException("El idUsuario es obligatorio");
+        }
+
+        if (request.getTitulo() == null || request.getTitulo().isBlank()) {
+            throw new BadRequestException("El título de la lista es obligatorio");
+        }
+
         Usuario usuario = usuarioRepository.findById(request.getIdUsuario())
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(() -> new NotFoundException("Usuario no encontrado"));
 
         Lista lista = new Lista();
         lista.setUsuario(usuario);
@@ -46,13 +56,26 @@ public class ListaService {
         if (request.getVisibilidad() == null || request.getVisibilidad().isBlank()) {
             lista.setVisibilidad("PUBLICA");
         } else {
-            lista.setVisibilidad(request.getVisibilidad());
+            String visibilidad = request.getVisibilidad().toUpperCase();
+
+            if (!visibilidad.equals("PUBLICA") &&
+                    !visibilidad.equals("PRIVADA") &&
+                    !visibilidad.equals("SOLO_AMIGOS")) {
+                throw new BadRequestException("Visibilidad inválida. Usa PUBLICA, PRIVADA o SOLO_AMIGOS");
+            }
+
+            lista.setVisibilidad(visibilidad);
         }
 
         return listaRepository.save(lista);
     }
 
     public void eliminarLista(Long id) {
+
+        if (!listaRepository.existsById(id)) {
+            throw new NotFoundException("Lista no encontrada");
+        }
+
         listaRepository.deleteById(id);
     }
 }

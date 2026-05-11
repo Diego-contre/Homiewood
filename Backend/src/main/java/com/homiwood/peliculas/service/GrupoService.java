@@ -1,6 +1,8 @@
 package com.homiwood.peliculas.service;
 
 import com.homiwood.peliculas.dto.CrearGrupoRequest;
+import com.homiwood.peliculas.exception.BadRequestException;
+import com.homiwood.peliculas.exception.NotFoundException;
 import com.homiwood.peliculas.model.Grupo;
 import com.homiwood.peliculas.model.GrupoMiembro;
 import com.homiwood.peliculas.model.Usuario;
@@ -35,7 +37,7 @@ public class GrupoService {
 
     public Grupo buscarPorId(Long idGrupo) {
         return grupoRepository.findById(idGrupo)
-                .orElseThrow(() -> new RuntimeException("Grupo no encontrado"));
+                .orElseThrow(() -> new NotFoundException("Grupo no encontrado"));
     }
 
     public List<GrupoMiembro> listarGruposDeUsuario(Long idUsuario) {
@@ -46,15 +48,15 @@ public class GrupoService {
     public Grupo crearGrupo(CrearGrupoRequest request) {
 
         if (request.getIdCreador() == null) {
-            throw new RuntimeException("El idCreador es obligatorio");
+            throw new BadRequestException("El idCreador es obligatorio");
         }
 
         if (request.getNombre() == null || request.getNombre().isBlank()) {
-            throw new RuntimeException("El nombre del grupo es obligatorio");
+            throw new BadRequestException("El nombre del grupo es obligatorio");
         }
 
         Usuario creador = usuarioRepository.findById(request.getIdCreador())
-                .orElseThrow(() -> new RuntimeException("Usuario creador no encontrado"));
+                .orElseThrow(() -> new NotFoundException("Usuario creador no encontrado"));
 
         Grupo grupo = new Grupo();
         grupo.setNombre(request.getNombre().trim());
@@ -74,6 +76,11 @@ public class GrupoService {
     }
 
     public void eliminarGrupo(Long idGrupo) {
+
+        if (!grupoRepository.existsById(idGrupo)) {
+            throw new NotFoundException("Grupo no encontrado");
+        }
+
         grupoRepository.deleteById(idGrupo);
     }
 }
