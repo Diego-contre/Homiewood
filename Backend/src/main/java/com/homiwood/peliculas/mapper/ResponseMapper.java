@@ -1,13 +1,7 @@
 package com.homiwood.peliculas.mapper;
 
-import com.homiwood.peliculas.dto.ContenidoResponse;
-import com.homiwood.peliculas.dto.ListaContenidoResponse;
-import com.homiwood.peliculas.dto.ListaResponse;
-import com.homiwood.peliculas.dto.UsuarioResponse;
-import com.homiwood.peliculas.model.Contenido;
-import com.homiwood.peliculas.model.Lista;
-import com.homiwood.peliculas.model.ListaContenido;
-import com.homiwood.peliculas.model.Usuario;
+import com.homiwood.peliculas.dto.*;
+import com.homiwood.peliculas.model.*;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -69,6 +63,88 @@ public class ResponseMapper {
                 listaContenido.getEstado(),
                 listaContenido.getNotaUsuario(),
                 listaContenido.getFechaAgregado()
+        );
+    }
+
+    public GeneroResponse toGeneroResponse(Genero genero) {
+        return new GeneroResponse(
+                genero.getIdGenero(),
+                genero.getNombre()
+        );
+    }
+
+    public ContenidoGeneroResponse toContenidoGeneroResponse(ContenidoGenero contenidoGenero) {
+        return new ContenidoGeneroResponse(
+                contenidoGenero.getIdContenidoGenero(),
+                contenidoGenero.getContenido().getIdContenido(),
+                contenidoGenero.getContenido().getTitulo(),
+                contenidoGenero.getGenero().getIdGenero(),
+                contenidoGenero.getGenero().getNombre()
+        );
+    }
+
+    public CalificacionResponse toCalificacionResponse(Calificacion calificacion) {
+        return new CalificacionResponse(
+                calificacion.getIdCalificacion(),
+                calificacion.getUsuario().getIdUsuario(),
+                calificacion.getUsuario().getNombre(),
+                calificacion.getUsuario().getUsername(),
+                calificacion.getContenido().getIdContenido(),
+                calificacion.getContenido().getTitulo(),
+                calificacion.getContenido().getTipoContenido(),
+                calificacion.getPuntaje(),
+                calificacion.getComentario(),
+                calificacion.getFechaCalificacion()
+        );
+    }
+
+    public LikeListaResponse toLikeListaResponse(LikeLista likeLista) {
+        return new LikeListaResponse(
+                likeLista.getIdLike(),
+                likeLista.getUsuario().getIdUsuario(),
+                likeLista.getUsuario().getNombre(),
+                likeLista.getUsuario().getUsername(),
+                likeLista.getLista().getIdLista(),
+                likeLista.getLista().getTitulo(),
+                likeLista.getFechaLike()
+        );
+    }
+
+    public SeguimientoResponse toSeguimientoResponse(Seguimiento seguimiento) {
+        return new SeguimientoResponse(
+                seguimiento.getIdSeguimiento(),
+                seguimiento.getSeguidor().getIdUsuario(),
+                seguimiento.getSeguidor().getNombre(),
+                seguimiento.getSeguidor().getUsername(),
+                seguimiento.getSeguido().getIdUsuario(),
+                seguimiento.getSeguido().getNombre(),
+                seguimiento.getSeguido().getUsername(),
+                seguimiento.getFechaSeguimiento()
+        );
+    }
+
+    public GrupoResponse toGrupoResponse(Grupo grupo) {
+        return new GrupoResponse(
+                grupo.getIdGrupo(),
+                grupo.getNombre(),
+                grupo.getDescripcion(),
+                grupo.getCreador().getIdUsuario(),
+                grupo.getCreador().getNombre(),
+                grupo.getCreador().getUsername(),
+                grupo.getFechaCreacion()
+        );
+    }
+
+    public GrupoMiembroResponse toGrupoMiembroResponse(GrupoMiembro grupoMiembro) {
+        return new GrupoMiembroResponse(
+                grupoMiembro.getIdGrupoMiembro(),
+                grupoMiembro.getGrupo().getIdGrupo(),
+                grupoMiembro.getGrupo().getNombre(),
+                grupoMiembro.getUsuario().getIdUsuario(),
+                grupoMiembro.getUsuario().getNombre(),
+                grupoMiembro.getUsuario().getUsername(),
+                grupoMiembro.getRol(),
+                grupoMiembro.getFechaUnion()
         );
     }
 }

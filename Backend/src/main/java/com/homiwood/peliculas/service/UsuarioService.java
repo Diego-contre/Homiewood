@@ -5,6 +5,7 @@ import com.homiwood.peliculas.exception.DuplicateResourceException;
 import com.homiwood.peliculas.exception.NotFoundException;
 import com.homiwood.peliculas.model.Usuario;
 import com.homiwood.peliculas.repository.UsuarioRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,9 +14,14 @@ import java.util.List;
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UsuarioService(UsuarioRepository usuarioRepository) {
+    public UsuarioService(
+            UsuarioRepository usuarioRepository,
+            PasswordEncoder passwordEncoder
+    ) {
         this.usuarioRepository = usuarioRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public List<Usuario> listarUsuarios() {
@@ -36,9 +42,7 @@ public class UsuarioService {
         usuario.setNombre(request.getNombre());
         usuario.setUsername(request.getUsername());
         usuario.setEmail(request.getEmail());
-
-        // Temporal. Más adelante esto se encriptará con Spring Security.
-        usuario.setPasswordHash(request.getPassword());
+        usuario.setPasswordHash(passwordEncoder.encode(request.getPassword()));
 
         return usuarioRepository.save(usuario);
     }

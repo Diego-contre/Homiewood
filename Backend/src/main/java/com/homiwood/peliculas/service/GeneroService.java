@@ -1,6 +1,6 @@
 package com.homiwood.peliculas.service;
 
-import com.homiwood.peliculas.exception.BadRequestException;
+import com.homiwood.peliculas.dto.CrearGeneroRequest;
 import com.homiwood.peliculas.exception.DuplicateResourceException;
 import com.homiwood.peliculas.exception.NotFoundException;
 import com.homiwood.peliculas.model.Genero;
@@ -27,23 +27,20 @@ public class GeneroService {
                 .orElseThrow(() -> new NotFoundException("Género no encontrado"));
     }
 
-    public Genero crearGenero(Genero genero) {
-        if (genero.getNombre() == null || genero.getNombre().isBlank()) {
-            throw new BadRequestException("El nombre del género es obligatorio");
-        }
-
-        String nombreNormalizado = genero.getNombre().trim();
+    public Genero crearGenero(CrearGeneroRequest request) {
+        String nombreNormalizado = request.getNombre().trim();
 
         if (generoRepository.existsByNombreIgnoreCase(nombreNormalizado)) {
             throw new DuplicateResourceException("El género ya existe");
         }
 
+        Genero genero = new Genero();
         genero.setNombre(nombreNormalizado);
+
         return generoRepository.save(genero);
     }
 
     public void eliminarGenero(Long id) {
-
         if (!generoRepository.existsById(id)) {
             throw new NotFoundException("Género no encontrado");
         }
