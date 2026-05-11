@@ -1,5 +1,6 @@
 package com.homiwood.peliculas.service;
 
+import com.homiwood.peliculas.dto.CrearListaAutenticadaRequest;
 import com.homiwood.peliculas.dto.CrearListaRequest;
 import com.homiwood.peliculas.exception.BadRequestException;
 import com.homiwood.peliculas.exception.NotFoundException;
@@ -69,7 +70,29 @@ public class ListaService {
 
         return listaRepository.save(lista);
     }
+    public Lista crearListaParaUsuario(Usuario usuario, CrearListaAutenticadaRequest request) {
 
+        Lista lista = new Lista();
+        lista.setUsuario(usuario);
+        lista.setTitulo(request.getTitulo().trim());
+        lista.setDescripcion(request.getDescripcion());
+
+        if (request.getVisibilidad() == null || request.getVisibilidad().isBlank()) {
+            lista.setVisibilidad("PUBLICA");
+        } else {
+            String visibilidad = request.getVisibilidad().toUpperCase();
+
+            if (!visibilidad.equals("PUBLICA") &&
+                    !visibilidad.equals("PRIVADA") &&
+                    !visibilidad.equals("SOLO_AMIGOS")) {
+                throw new BadRequestException("Visibilidad inválida. Usa PUBLICA, PRIVADA o SOLO_AMIGOS");
+            }
+
+            lista.setVisibilidad(visibilidad);
+        }
+
+        return listaRepository.save(lista);
+    }
     public void eliminarLista(Long id) {
 
         if (!listaRepository.existsById(id)) {

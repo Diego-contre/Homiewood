@@ -147,4 +147,17 @@ public class ResponseMapper {
                 grupoMiembro.getFechaUnion()
         );
     }
+    public ComentarioListaResponse toComentarioListaResponse(ComentarioLista comentarioLista) {
+        return new ComentarioListaResponse(
+                comentarioLista.getIdComentario(),
+                comentarioLista.getLista().getIdLista(),
+                comentarioLista.getLista().getTitulo(),
+                comentarioLista.getUsuario().getIdUsuario(),
+                comentarioLista.getUsuario().getNombre(),
+                comentarioLista.getUsuario().getUsername(),
+                comentarioLista.getComentario(),
+                comentarioLista.getFechaComentario(),
+                comentarioLista.getFechaActualizacion()
+        );
+    }
 }
