@@ -2,6 +2,8 @@ package com.homiwood.peliculas.service;
 
 import com.homiwood.peliculas.dto.ComparacionGrupoResponse;
 import com.homiwood.peliculas.dto.ContenidoComparadoGrupoResponse;
+import com.homiwood.peliculas.exception.BadRequestException;
+import com.homiwood.peliculas.exception.NotFoundException;
 import com.homiwood.peliculas.model.Contenido;
 import com.homiwood.peliculas.model.Grupo;
 import com.homiwood.peliculas.model.GrupoMiembro;
@@ -32,13 +34,17 @@ public class ComparacionGrupoService {
 
     public ComparacionGrupoResponse compararGrupo(Long idGrupo) {
 
+        if (idGrupo == null) {
+            throw new BadRequestException("El idGrupo es obligatorio");
+        }
+
         Grupo grupo = grupoRepository.findById(idGrupo)
-                .orElseThrow(() -> new RuntimeException("Grupo no encontrado"));
+                .orElseThrow(() -> new NotFoundException("Grupo no encontrado"));
 
         List<GrupoMiembro> miembros = grupoMiembroRepository.findByGrupoIdGrupo(idGrupo);
 
         if (miembros.size() < 2) {
-            throw new RuntimeException("El grupo debe tener al menos 2 miembros para comparar listas");
+            throw new BadRequestException("El grupo debe tener al menos 2 miembros para comparar listas");
         }
 
         long totalMiembros = miembros.size();

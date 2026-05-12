@@ -1,8 +1,11 @@
 package com.homiwood.peliculas.controller;
 
 import com.homiwood.peliculas.dto.CrearLikeListaRequest;
+import com.homiwood.peliculas.dto.LikeListaResponse;
+import com.homiwood.peliculas.mapper.ResponseMapper;
 import com.homiwood.peliculas.model.LikeLista;
 import com.homiwood.peliculas.service.LikeListaService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,18 +16,23 @@ import java.util.List;
 public class LikeListaController {
 
     private final LikeListaService likeListaService;
+    private final ResponseMapper responseMapper;
 
-    public LikeListaController(LikeListaService likeListaService) {
+    public LikeListaController(
+            LikeListaService likeListaService,
+            ResponseMapper responseMapper
+    ) {
         this.likeListaService = likeListaService;
+        this.responseMapper = responseMapper;
     }
 
     @PostMapping("/listas/{idLista}/likes")
-    public ResponseEntity<LikeLista> darLike(
+    public ResponseEntity<LikeListaResponse> darLike(
             @PathVariable Long idLista,
-            @RequestBody CrearLikeListaRequest request
+            @Valid @RequestBody CrearLikeListaRequest request
     ) {
         LikeLista likeCreado = likeListaService.darLike(idLista, request);
-        return ResponseEntity.ok(likeCreado);
+        return ResponseEntity.ok(responseMapper.toLikeListaResponse(likeCreado));
     }
 
     @DeleteMapping("/listas/{idLista}/likes/usuario/{idUsuario}")
@@ -37,8 +45,11 @@ public class LikeListaController {
     }
 
     @GetMapping("/listas/{idLista}/likes")
-    public List<LikeLista> listarLikesDeLista(@PathVariable Long idLista) {
-        return likeListaService.listarLikesDeLista(idLista);
+    public List<LikeListaResponse> listarLikesDeLista(@PathVariable Long idLista) {
+        return likeListaService.listarLikesDeLista(idLista)
+                .stream()
+                .map(responseMapper::toLikeListaResponse)
+                .toList();
     }
 
     @GetMapping("/listas/{idLista}/likes/cantidad")
@@ -47,7 +58,10 @@ public class LikeListaController {
     }
 
     @GetMapping("/usuarios/{idUsuario}/likes")
-    public List<LikeLista> listarLikesDeUsuario(@PathVariable Long idUsuario) {
-        return likeListaService.listarLikesDeUsuario(idUsuario);
+    public List<LikeListaResponse> listarLikesDeUsuario(@PathVariable Long idUsuario) {
+        return likeListaService.listarLikesDeUsuario(idUsuario)
+                .stream()
+                .map(responseMapper::toLikeListaResponse)
+                .toList();
     }
 }

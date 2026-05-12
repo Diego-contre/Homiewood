@@ -1,7 +1,11 @@
 package com.homiwood.peliculas.controller;
 
+import com.homiwood.peliculas.dto.CrearGeneroRequest;
+import com.homiwood.peliculas.dto.GeneroResponse;
+import com.homiwood.peliculas.mapper.ResponseMapper;
 import com.homiwood.peliculas.model.Genero;
 import com.homiwood.peliculas.service.GeneroService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,25 +16,30 @@ import java.util.List;
 public class GeneroController {
 
     private final GeneroService generoService;
+    private final ResponseMapper responseMapper;
 
-    public GeneroController(GeneroService generoService) {
+    public GeneroController(GeneroService generoService, ResponseMapper responseMapper) {
         this.generoService = generoService;
+        this.responseMapper = responseMapper;
     }
 
     @GetMapping
-    public List<Genero> listarGeneros() {
-        return generoService.listarGeneros();
+    public List<GeneroResponse> listarGeneros() {
+        return generoService.listarGeneros()
+                .stream()
+                .map(responseMapper::toGeneroResponse)
+                .toList();
     }
 
     @GetMapping("/{id}")
-    public Genero buscarPorId(@PathVariable Long id) {
-        return generoService.buscarPorId(id);
+    public GeneroResponse buscarPorId(@PathVariable Long id) {
+        return responseMapper.toGeneroResponse(generoService.buscarPorId(id));
     }
 
     @PostMapping
-    public ResponseEntity<Genero> crearGenero(@RequestBody Genero genero) {
-        Genero generoCreado = generoService.crearGenero(genero);
-        return ResponseEntity.ok(generoCreado);
+    public ResponseEntity<GeneroResponse> crearGenero(@Valid @RequestBody CrearGeneroRequest request) {
+        Genero generoCreado = generoService.crearGenero(request);
+        return ResponseEntity.ok(responseMapper.toGeneroResponse(generoCreado));
     }
 
     @DeleteMapping("/{id}")

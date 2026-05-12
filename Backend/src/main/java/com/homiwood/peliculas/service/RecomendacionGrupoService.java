@@ -1,6 +1,8 @@
 package com.homiwood.peliculas.service;
 
 import com.homiwood.peliculas.dto.RecomendacionGrupoResponse;
+import com.homiwood.peliculas.exception.BadRequestException;
+import com.homiwood.peliculas.exception.NotFoundException;
 import com.homiwood.peliculas.model.Contenido;
 import com.homiwood.peliculas.repository.CalificacionRepository;
 import com.homiwood.peliculas.repository.ContenidoRepository;
@@ -39,11 +41,12 @@ public class RecomendacionGrupoService {
     public List<RecomendacionGrupoResponse> recomendarParaGrupo(Long idGrupo, int limite) {
 
         validarGrupo(idGrupo);
+        validarLimite(limite);
 
         long totalMiembros = grupoMiembroRepository.countByGrupoIdGrupo(idGrupo);
 
         if (totalMiembros == 0) {
-            throw new RuntimeException("El grupo no tiene miembros");
+            throw new BadRequestException("El grupo no tiene miembros");
         }
 
         Map<Long, RecomendacionGrupoResponse> recomendaciones = new LinkedHashMap<>();
@@ -140,17 +143,32 @@ public class RecomendacionGrupoService {
             long totalMiembros
     ) {
         double base = promedio != null ? promedio : 0.0;
-
         double pesoInteres = miembrosInteresados * 2.0;
         double penalizacionVistos = miembrosQueYaLaVieron * 0.5;
-        double bonusGrupo = totalMiembros > 0 ? ((double) miembrosInteresados / totalMiembros) * 3.0 : 0.0;
+        double bonusGrupo = totalMiembros > 0
+                ? ((double) miembrosInteresados / totalMiembros) * 3.0
+                : 0.0;
 
         return base + pesoInteres + bonusGrupo - penalizacionVistos;
     }
 
     private void validarGrupo(Long idGrupo) {
+        if (idGrupo == null) {
+            throw new BadRequestException("El idGrupo es obligatorio");
+        }
+
         if (!grupoRepository.existsById(idGrupo)) {
-            throw new RuntimeException("Grupo no encontrado");
+            throw new NotFoundException("Grupo no encontrado");
+        }
+    }
+
+    private void validarLimite(int limite) {
+        if (limite <= 0) {
+            throw new BadRequestException("El límite debe ser mayor a 0");
+        }
+
+        if (limite > 50) {
+            throw new BadRequestException("El límite máximo permitido es 50");
         }
     }
 }

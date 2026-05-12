@@ -1,6 +1,9 @@
 package com.homiwood.peliculas.service;
 
 import com.homiwood.peliculas.dto.CrearSeguimientoRequest;
+import com.homiwood.peliculas.exception.BadRequestException;
+import com.homiwood.peliculas.exception.DuplicateResourceException;
+import com.homiwood.peliculas.exception.NotFoundException;
 import com.homiwood.peliculas.model.Seguimiento;
 import com.homiwood.peliculas.model.Usuario;
 import com.homiwood.peliculas.repository.SeguimientoRepository;
@@ -26,20 +29,20 @@ public class SeguimientoService {
     public Seguimiento seguirUsuario(Long idSeguido, CrearSeguimientoRequest request) {
 
         if (request.getIdSeguidor() == null) {
-            throw new RuntimeException("El idSeguidor es obligatorio");
+            throw new BadRequestException("El idSeguidor es obligatorio");
         }
 
         Long idSeguidor = request.getIdSeguidor();
 
         if (idSeguidor.equals(idSeguido)) {
-            throw new RuntimeException("Un usuario no puede seguirse a sí mismo");
+            throw new BadRequestException("Un usuario no puede seguirse a sí mismo");
         }
 
         Usuario seguidor = usuarioRepository.findById(idSeguidor)
-                .orElseThrow(() -> new RuntimeException("Usuario seguidor no encontrado"));
+                .orElseThrow(() -> new NotFoundException("Usuario seguidor no encontrado"));
 
         Usuario seguido = usuarioRepository.findById(idSeguido)
-                .orElseThrow(() -> new RuntimeException("Usuario seguido no encontrado"));
+                .orElseThrow(() -> new NotFoundException("Usuario seguido no encontrado"));
 
         boolean yaSigue = seguimientoRepository.existsBySeguidorIdUsuarioAndSeguidoIdUsuario(
                 idSeguidor,
@@ -47,7 +50,7 @@ public class SeguimientoService {
         );
 
         if (yaSigue) {
-            throw new RuntimeException("Este usuario ya sigue a ese usuario");
+            throw new DuplicateResourceException("Este usuario ya sigue a ese usuario");
         }
 
         Seguimiento seguimiento = new Seguimiento();
@@ -77,7 +80,7 @@ public class SeguimientoService {
 
         Seguimiento seguimiento = seguimientoRepository
                 .findBySeguidorIdUsuarioAndSeguidoIdUsuario(idSeguidor, idSeguido)
-                .orElseThrow(() -> new RuntimeException("Seguimiento no encontrado"));
+                .orElseThrow(() -> new NotFoundException("Seguimiento no encontrado"));
 
         seguimientoRepository.delete(seguimiento);
     }

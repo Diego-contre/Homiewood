@@ -1,6 +1,9 @@
 package com.homiwood.peliculas.service;
 
 import com.homiwood.peliculas.dto.CrearLikeListaRequest;
+import com.homiwood.peliculas.exception.BadRequestException;
+import com.homiwood.peliculas.exception.DuplicateResourceException;
+import com.homiwood.peliculas.exception.NotFoundException;
 import com.homiwood.peliculas.model.LikeLista;
 import com.homiwood.peliculas.model.Lista;
 import com.homiwood.peliculas.model.Usuario;
@@ -43,14 +46,14 @@ public class LikeListaService {
     public LikeLista darLike(Long idLista, CrearLikeListaRequest request) {
 
         if (request.getIdUsuario() == null) {
-            throw new RuntimeException("El idUsuario es obligatorio");
+            throw new BadRequestException("El idUsuario es obligatorio");
         }
 
         Usuario usuario = usuarioRepository.findById(request.getIdUsuario())
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(() -> new NotFoundException("Usuario no encontrado"));
 
         Lista lista = listaRepository.findById(idLista)
-                .orElseThrow(() -> new RuntimeException("Lista no encontrada"));
+                .orElseThrow(() -> new NotFoundException("Lista no encontrada"));
 
         boolean yaTieneLike = likeListaRepository.existsByUsuarioIdUsuarioAndListaIdLista(
                 request.getIdUsuario(),
@@ -58,7 +61,7 @@ public class LikeListaService {
         );
 
         if (yaTieneLike) {
-            throw new RuntimeException("El usuario ya le dio like a esta lista");
+            throw new DuplicateResourceException("El usuario ya le dio like a esta lista");
         }
 
         LikeLista likeLista = new LikeLista();
@@ -72,7 +75,7 @@ public class LikeListaService {
 
         LikeLista likeLista = likeListaRepository
                 .findByUsuarioIdUsuarioAndListaIdLista(idUsuario, idLista)
-                .orElseThrow(() -> new RuntimeException("Like no encontrado"));
+                .orElseThrow(() -> new NotFoundException("Like no encontrado"));
 
         likeListaRepository.delete(likeLista);
     }

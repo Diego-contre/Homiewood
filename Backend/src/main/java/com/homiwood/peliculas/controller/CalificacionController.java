@@ -1,8 +1,11 @@
 package com.homiwood.peliculas.controller;
 
+import com.homiwood.peliculas.dto.CalificacionResponse;
 import com.homiwood.peliculas.dto.CrearCalificacionRequest;
+import com.homiwood.peliculas.mapper.ResponseMapper;
 import com.homiwood.peliculas.model.Calificacion;
 import com.homiwood.peliculas.service.CalificacionService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,24 +16,38 @@ import java.util.List;
 public class CalificacionController {
 
     private final CalificacionService calificacionService;
+    private final ResponseMapper responseMapper;
 
-    public CalificacionController(CalificacionService calificacionService) {
+    public CalificacionController(
+            CalificacionService calificacionService,
+            ResponseMapper responseMapper
+    ) {
         this.calificacionService = calificacionService;
+        this.responseMapper = responseMapper;
     }
 
     @GetMapping
-    public List<Calificacion> listarCalificaciones() {
-        return calificacionService.listarCalificaciones();
+    public List<CalificacionResponse> listarCalificaciones() {
+        return calificacionService.listarCalificaciones()
+                .stream()
+                .map(responseMapper::toCalificacionResponse)
+                .toList();
     }
 
     @GetMapping("/usuario/{idUsuario}")
-    public List<Calificacion> listarPorUsuario(@PathVariable Long idUsuario) {
-        return calificacionService.listarPorUsuario(idUsuario);
+    public List<CalificacionResponse> listarPorUsuario(@PathVariable Long idUsuario) {
+        return calificacionService.listarPorUsuario(idUsuario)
+                .stream()
+                .map(responseMapper::toCalificacionResponse)
+                .toList();
     }
 
     @GetMapping("/contenido/{idContenido}")
-    public List<Calificacion> listarPorContenido(@PathVariable Long idContenido) {
-        return calificacionService.listarPorContenido(idContenido);
+    public List<CalificacionResponse> listarPorContenido(@PathVariable Long idContenido) {
+        return calificacionService.listarPorContenido(idContenido)
+                .stream()
+                .map(responseMapper::toCalificacionResponse)
+                .toList();
     }
 
     @GetMapping("/contenido/{idContenido}/promedio")
@@ -39,18 +56,20 @@ public class CalificacionController {
     }
 
     @PostMapping
-    public ResponseEntity<Calificacion> crearCalificacion(@RequestBody CrearCalificacionRequest request) {
+    public ResponseEntity<CalificacionResponse> crearCalificacion(
+            @Valid @RequestBody CrearCalificacionRequest request
+    ) {
         Calificacion calificacionCreada = calificacionService.crearCalificacion(request);
-        return ResponseEntity.ok(calificacionCreada);
+        return ResponseEntity.ok(responseMapper.toCalificacionResponse(calificacionCreada));
     }
 
     @PutMapping("/{idCalificacion}")
-    public ResponseEntity<Calificacion> actualizarCalificacion(
+    public ResponseEntity<CalificacionResponse> actualizarCalificacion(
             @PathVariable Long idCalificacion,
-            @RequestBody CrearCalificacionRequest request
+            @Valid @RequestBody CrearCalificacionRequest request
     ) {
         Calificacion calificacionActualizada = calificacionService.actualizarCalificacion(idCalificacion, request);
-        return ResponseEntity.ok(calificacionActualizada);
+        return ResponseEntity.ok(responseMapper.toCalificacionResponse(calificacionActualizada));
     }
 
     @DeleteMapping("/{idCalificacion}")

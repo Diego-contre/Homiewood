@@ -1,6 +1,7 @@
 package com.homiwood.peliculas.service;
 
 import com.homiwood.peliculas.dto.GuardarContenidoExternoRequest;
+import com.homiwood.peliculas.exception.BadRequestException;
 import com.homiwood.peliculas.model.Contenido;
 import com.homiwood.peliculas.repository.ContenidoRepository;
 import org.springframework.stereotype.Service;
@@ -49,25 +50,25 @@ public class CatalogoGuardarService {
     private void validarRequest(GuardarContenidoExternoRequest request) {
 
         if (request.getProveedor() == null || request.getProveedor().isBlank()) {
-            throw new RuntimeException("El proveedor es obligatorio");
+            throw new BadRequestException("El proveedor es obligatorio");
         }
 
         if (request.getApiId() == null || request.getApiId().isBlank()) {
-            throw new RuntimeException("El apiId es obligatorio");
+            throw new BadRequestException("El apiId es obligatorio");
         }
 
         if (request.getTitulo() == null || request.getTitulo().isBlank()) {
-            throw new RuntimeException("El título es obligatorio");
+            throw new BadRequestException("El título es obligatorio");
         }
 
         if (request.getTipoContenido() == null || request.getTipoContenido().isBlank()) {
-            throw new RuntimeException("El tipo de contenido es obligatorio");
+            throw new BadRequestException("El tipo de contenido es obligatorio");
         }
 
         String tipo = request.getTipoContenido().toUpperCase();
 
         if (!tipo.equals("PELICULA") && !tipo.equals("SERIE")) {
-            throw new RuntimeException("El tipo de contenido debe ser PELICULA o SERIE");
+            throw new BadRequestException("El tipo de contenido debe ser PELICULA o SERIE");
         }
     }
 

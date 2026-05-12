@@ -3,6 +3,7 @@ package com.homiwood.peliculas.service;
 import com.homiwood.peliculas.dto.AgregarContenidoListaRequest;
 import com.homiwood.peliculas.dto.GuardarContenidoExternoRequest;
 import com.homiwood.peliculas.dto.GuardarYAgregarContenidoRequest;
+import com.homiwood.peliculas.exception.BadRequestException;
 import com.homiwood.peliculas.model.Contenido;
 import com.homiwood.peliculas.model.ListaContenido;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,14 @@ public class CatalogoListaService {
     }
 
     public ListaContenido guardarYAgregarALista(Long idLista, GuardarYAgregarContenidoRequest request) {
+
+        if (idLista == null) {
+            throw new BadRequestException("El idLista es obligatorio");
+        }
+
+        if (request == null) {
+            throw new BadRequestException("Los datos del contenido son obligatorios");
+        }
 
         GuardarContenidoExternoRequest guardarRequest = new GuardarContenidoExternoRequest();
 

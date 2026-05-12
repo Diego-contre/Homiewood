@@ -3,6 +3,7 @@ package com.homiwood.peliculas.service;
 import com.homiwood.peliculas.dto.CatalogoExternoResponse;
 import com.homiwood.peliculas.dto.JikanAnimeDto;
 import com.homiwood.peliculas.dto.JikanSearchResponse;
+import com.homiwood.peliculas.exception.BadRequestException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -23,6 +24,11 @@ public class JikanCatalogoService {
     }
 
     public List<CatalogoExternoResponse> buscarAnime(String query) {
+
+        if (query == null || query.isBlank()) {
+            throw new BadRequestException("El parámetro query es obligatorio");
+        }
+
         try {
             JikanSearchResponse response = restClient.get()
                     .uri(uriBuilder -> uriBuilder

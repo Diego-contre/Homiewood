@@ -1,6 +1,9 @@
 package com.homiwood.peliculas.service;
 
 import com.homiwood.peliculas.dto.CrearCalificacionRequest;
+import com.homiwood.peliculas.exception.BadRequestException;
+import com.homiwood.peliculas.exception.DuplicateResourceException;
+import com.homiwood.peliculas.exception.NotFoundException;
 import com.homiwood.peliculas.model.Calificacion;
 import com.homiwood.peliculas.model.Contenido;
 import com.homiwood.peliculas.model.Usuario;
@@ -45,10 +48,10 @@ public class CalificacionService {
         validarPuntaje(request.getPuntaje());
 
         Usuario usuario = usuarioRepository.findById(request.getIdUsuario())
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(() -> new NotFoundException("Usuario no encontrado"));
 
         Contenido contenido = contenidoRepository.findById(request.getIdContenido())
-                .orElseThrow(() -> new RuntimeException("Contenido no encontrado"));
+                .orElseThrow(() -> new NotFoundException("Contenido no encontrado"));
 
         boolean yaExiste = calificacionRepository.existsByUsuarioIdUsuarioAndContenidoIdContenido(
                 request.getIdUsuario(),
@@ -56,7 +59,7 @@ public class CalificacionService {
         );
 
         if (yaExiste) {
-            throw new RuntimeException("Este usuario ya calificó este contenido");
+            throw new DuplicateResourceException("Este usuario ya calificó este contenido");
         }
 
         Calificacion calificacion = new Calificacion();
@@ -73,7 +76,7 @@ public class CalificacionService {
         validarPuntaje(request.getPuntaje());
 
         Calificacion calificacion = calificacionRepository.findById(idCalificacion)
-                .orElseThrow(() -> new RuntimeException("Calificación no encontrada"));
+                .orElseThrow(() -> new NotFoundException("Calificación no encontrada"));
 
         calificacion.setPuntaje(request.getPuntaje());
         calificacion.setComentario(request.getComentario());
@@ -83,25 +86,25 @@ public class CalificacionService {
 
     public Double obtenerPromedioContenido(Long idContenido) {
         Double promedio = calificacionRepository.calcularPromedioPorContenido(idContenido);
-
-        if (promedio == null) {
-            return 0.0;
-        }
-
-        return promedio;
+        return promedio != null ? promedio : 0.0;
     }
 
     public void eliminarCalificacion(Long idCalificacion) {
+
+        if (!calificacionRepository.existsById(idCalificacion)) {
+            throw new NotFoundException("Calificación no encontrada");
+        }
+
         calificacionRepository.deleteById(idCalificacion);
     }
 
     private void validarPuntaje(Integer puntaje) {
         if (puntaje == null) {
-            throw new RuntimeException("El puntaje es obligatorio");
+            throw new BadRequestException("El puntaje es obligatorio");
         }
 
         if (puntaje < 1 || puntaje > 5) {
-            throw new RuntimeException("El puntaje debe estar entre 1 y 5");
+            throw new BadRequestException("El puntaje debe estar entre 1 y 5");
         }
     }
 }

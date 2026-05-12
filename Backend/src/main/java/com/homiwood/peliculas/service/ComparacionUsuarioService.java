@@ -2,6 +2,8 @@ package com.homiwood.peliculas.service;
 
 import com.homiwood.peliculas.dto.ComparacionUsuariosResponse;
 import com.homiwood.peliculas.dto.ContenidoComparadoResponse;
+import com.homiwood.peliculas.exception.BadRequestException;
+import com.homiwood.peliculas.exception.NotFoundException;
 import com.homiwood.peliculas.model.Contenido;
 import com.homiwood.peliculas.model.ListaContenido;
 import com.homiwood.peliculas.repository.ListaContenidoRepository;
@@ -114,16 +116,20 @@ public class ComparacionUsuarioService {
     }
 
     private void validarUsuarios(Long idUsuario1, Long idUsuario2) {
+        if (idUsuario1 == null || idUsuario2 == null) {
+            throw new BadRequestException("Los IDs de usuario son obligatorios");
+        }
+
         if (idUsuario1.equals(idUsuario2)) {
-            throw new RuntimeException("No puedes comparar el mismo usuario");
+            throw new BadRequestException("No puedes comparar el mismo usuario");
         }
 
         if (!usuarioRepository.existsById(idUsuario1)) {
-            throw new RuntimeException("Usuario 1 no encontrado");
+            throw new NotFoundException("Usuario 1 no encontrado");
         }
 
         if (!usuarioRepository.existsById(idUsuario2)) {
-            throw new RuntimeException("Usuario 2 no encontrado");
+            throw new NotFoundException("Usuario 2 no encontrado");
         }
     }
 
