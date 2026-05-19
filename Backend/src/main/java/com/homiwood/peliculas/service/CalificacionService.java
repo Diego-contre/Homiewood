@@ -12,6 +12,10 @@ import com.homiwood.peliculas.repository.ContenidoRepository;
 import com.homiwood.peliculas.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
 
+
+//WebSocket -> Diego
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+
 import java.util.List;
 
 @Service
@@ -21,14 +25,19 @@ public class CalificacionService {
     private final UsuarioRepository usuarioRepository;
     private final ContenidoRepository contenidoRepository;
 
+    //WebSocket -> Diego
+    private final SimpMessagingTemplate messagingTemplate;
+
     public CalificacionService(
             CalificacionRepository calificacionRepository,
             UsuarioRepository usuarioRepository,
-            ContenidoRepository contenidoRepository
+            ContenidoRepository contenidoRepository,
+            SimpMessagingTemplate messagingTemplate
     ) {
         this.calificacionRepository = calificacionRepository;
         this.usuarioRepository = usuarioRepository;
         this.contenidoRepository = contenidoRepository;
+        this.messagingTemplate = messagingTemplate;
     }
 
     public List<Calificacion> listarCalificaciones() {
@@ -68,7 +77,11 @@ public class CalificacionService {
         calificacion.setPuntaje(request.getPuntaje());
         calificacion.setComentario(request.getComentario());
 
-        return calificacionRepository.save(calificacion);
+
+        // WebSocket -> Diego
+        Calificacion guardada = calificacionRepository.save(calificacion);
+        messagingTemplate.convertAndSend("/topic/calificaciones", guardada);
+        return guardada;
     }
 
     public Calificacion actualizarCalificacion(Long idCalificacion, CrearCalificacionRequest request) {

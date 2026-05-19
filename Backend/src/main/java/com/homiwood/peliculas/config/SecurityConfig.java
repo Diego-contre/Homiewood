@@ -27,22 +27,33 @@ public class SecurityConfig {
 
         return http
                 .csrf(csrf -> csrf.disable())
-                .cors(Customizer.withDefaults())
+                .cors(Customizer.withDefaults()) // Busca y aplica el Bean de CORS configurado
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
+                        // 1. Rutas de autenticación globales
                         .requestMatchers(
                                 "/api/auth/**",
                                 "/api/health"
                         ).permitAll()
 
+                        // 2. CORREGIDO: Abrir todo el catálogo (incluyendo /guardar)
                         .requestMatchers(
-                                "/api/catalogo/tmdb",
-                                "/api/catalogo/anime",
-                                "/api/catalogo/buscar"
+                                "/api/catalogo/**"
                         ).permitAll()
 
+                        // 3. CORREGIDO: Abrir las calificaciones para tus pruebas
+                        .requestMatchers(
+                                "/api/calificaciones/**"
+                        ).permitAll()
+
+                        // 4. CORREGIDO: Dar acceso público al endpoint del WebSocket
+                        .requestMatchers(
+                                "/ws/**"
+                        ).permitAll()
+
+                        // Todo lo demás sigue requiriendo token JWT obligatoriamente
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(
