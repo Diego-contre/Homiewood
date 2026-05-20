@@ -1,4 +1,4 @@
-import { apiRequest, guardarToken, eliminarToken } from "./api";
+import { apiRequest, guardarToken, eliminarToken } from "./api.js";
 
 export async function registrarUsuario(datos) {
     const respuesta = await apiRequest("/auth/register", {

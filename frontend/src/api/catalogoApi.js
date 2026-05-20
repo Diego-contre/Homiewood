@@ -1,4 +1,4 @@
-import { apiRequest } from "./api";
+import { apiRequest } from "./api.js";
 
 export function buscarCatalogo(query) {
     return apiRequest(`/catalogo/buscar?query=${encodeURIComponent(query)}`);
