@@ -3,7 +3,7 @@ import { obtenerUsuarioAutenticado } from "../api/authApi.js";
 import { buscarTmdb, buscarAnime, guardarContenidoExterno } from "../api/catalogoApi.js";
 import { apiRequest } from "../api/api.js";
  
-const API_URL = "http://localhost:8080/api";
+const API_URL = "https://homiewood.onrender.com/api";
  
 let usuarioActual = null;
 let selectedFilm = null;
@@ -223,12 +223,15 @@ function addComment(id) {
 // ===============================
  
 function inicializarBuscadorPeliculas() {
+
     const filmSearchInput = document.getElementById("filmSearchInput");
     const filmDropdown    = document.getElementById("filmDropdown");
  
     if (!filmSearchInput || !filmDropdown) return;
  
     let searchTimeout = null;
+
+    
  
     filmSearchInput.addEventListener("input", () => {
         const q = filmSearchInput.value.trim();
@@ -241,6 +244,11 @@ function inicializarBuscadorPeliculas() {
                     buscarTmdb(q),
                     buscarAnime(q)
                 ]);
+
+                console.log("TMDB:", tmdb);
+                console.log("Anime:", anime);
+
+
  
                 const resultados = [
                     ...(tmdb.status  === "fulfilled" ? tmdb.value  : []),
@@ -343,6 +351,7 @@ function inicializarPublicador() {
     postText.addEventListener("input", checkPostReady);
  
     postBtn.addEventListener("click", async () => {
+        console.log("selectedFilm:", selectedFilm);
         try {
             const contenido = await guardarContenidoExterno({
                 proveedor:     selectedFilm.proveedor,
@@ -422,3 +431,4 @@ function inicializarNavbar() {
 window.toggleComments = toggleComments;
 window.addComment = addComment;
 window.cerrarSesion = cerrarSesion;
+window.cargarFeed = cargarFeed;

@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:8080/api";
+const API_URL = "https://homiewood.onrender.com/api";
 
 const loginForm = document.getElementById("login-form");
 const registroForm = document.getElementById("form-registro");
