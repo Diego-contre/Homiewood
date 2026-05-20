@@ -12,6 +12,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.socket.EnableWebSocketSecurity;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -34,6 +37,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // 1. Rutas de autenticación globales
                         .requestMatchers(
+                                "/ws/**",
+                                "/ws/info/**",
+                                "/topic/**",
+                                "/app/**",
                                 "/api/auth/**",
                                 "/api/health"
                         ).permitAll()
